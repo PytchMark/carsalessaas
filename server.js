@@ -6,6 +6,10 @@ const PORT = process.env.PORT || 8080;
 
 const root = __dirname;
 
+// (0) Body parsing for APIs (needed next)
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 // (1) Avoid Chrome ERR_TOO_MANY_ACCEPT_CH_RESTARTS style issues
 app.disable("x-powered-by");
 app.use((req, res, next) => {
@@ -14,8 +18,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// (2) Serve static files (keep this), but do NOT rely on redirects
+// (2) Static files
 app.use(express.static(root, { extensions: ["html"] }));
+
+// Optional: ignore favicon 404 spam
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // Helper to serve app index files consistently (no trailing slash required)
 function serveAppIndex(appName) {
@@ -35,3 +42,4 @@ app.get(["/apps/dealer", "/apps/dealer/"], serveAppIndex("dealer"));
 app.use((req, res) => res.status(404).send("Not Found"));
 
 app.listen(PORT, () => console.log(`carsalessaas running on :${PORT}`));
+
