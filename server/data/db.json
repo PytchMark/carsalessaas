@@ -1,0 +1,29 @@
+{
+  "dealers": {
+    "dlr_demo": {
+      "dealerId": "dlr_demo",
+      "name": "Demo Dealer",
+      "pin": "1234",
+      "vehicles": {
+        "veh_demo1": {
+          "vehicleId": "veh_demo1",
+          "dealerId": "dlr_demo",
+          "title": "2018 Toyota Corolla",
+          "make": "Toyota",
+          "model": "Corolla",
+          "year": 2018,
+          "price": 1650000,
+          "status": "Published",
+          "notes": "Clean unit, ready to go.",
+          "media": {
+            "images": [],
+            "videos": []
+          },
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      },
+      "logs": []
+    }
+  }
+}
