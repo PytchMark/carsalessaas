@@ -1,0 +1,1790 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Carsales SaaS – Storefront</title>
+  <meta name="description" content="Browse live dealership inventory and request a viewing." />
+
+  <style>
+    :root{
+      --bg:#050308;
+      --bg2:#0a0610;
+      --card:rgba(15,23,42,0.92);
+      --ink:#fef2f2;
+      --muted:#fca5a5;
+      --muted2:rgba(254,202,202,0.75);
+      --accent:#f97373;
+      --accent2:#ef4444;
+      --accentSoft:rgba(248,113,113,0.16);
+      --border:rgba(248,113,113,0.35);
+      --borderSoft:rgba(248,113,113,0.22);
+      --shadow:0 22px 46px rgba(15,23,42,0.95);
+      --shadowSoft:0 14px 28px rgba(15,23,42,0.85);
+      --radius:18px;
+      --radius2:24px;
+      --good:#22c55e;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, #7f1d1d 0, #020617 42%, #020617 100%);
+      -webkit-font-smoothing:antialiased;
+      overflow-x:hidden;
+    }
+
+    a{color:inherit; text-decoration:none}
+    .hidden{display:none!important}
+
+    /* Layout */
+    .wrap{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(135deg, rgba(5,3,8,0.72), rgba(10,6,16,0.66));
+      border-bottom:1px solid rgba(248,113,113,0.18);
+    }
+
+    .topbar-inner{
+      max-width:1200px;
+      margin:0 auto;
+      padding:12px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .badge{
+      width:42px;height:42px;border-radius:40%;
+      background: radial-gradient(circle at 30% 0, #fee2e2, #f97373 45%, #7f1d1d 100%);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;font-size:20px;color:#fff;
+      box-shadow:0 0 0 1px rgba(248,113,113,0.9), 0 14px 28px rgba(248,113,113,0.55), 0 0 40px rgba(248,113,113,0.6);
+      flex:0 0 auto;
+    }
+    .brand-text{display:flex;flex-direction:column;min-width:0}
+    .brand-title{
+      font-weight:650;
+      letter-spacing:0.03em;
+      font-size:15px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .brand-sub{
+      font-size:11px;
+      color:var(--muted);
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      opacity:0.95;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      background:rgba(15,23,42,0.9);
+      border:1px solid rgba(248,113,113,0.55);
+      color:var(--muted);
+      box-shadow:0 10px 22px rgba(15,23,42,0.88);
+    }
+    .dot{width:8px;height:8px;border-radius:999px;background:var(--good);box-shadow:0 0 0 3px rgba(34,197,94,0.45)}
+    .dot.off{background:var(--warn); box-shadow:0 0 0 3px rgba(251,191,36,0.35)}
+    .dot.err{background:var(--bad); box-shadow:0 0 0 3px rgba(251,113,133,0.30)}
+
+    .btn{
+      border-radius:999px;
+      border:1px solid transparent;
+      padding:8px 14px;
+      font-size:12px;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      cursor:pointer;
+      background:transparent;
+      color:var(--ink);
+      transition:transform .1s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+      user-select:none;
+    }
+    .btn:disabled{opacity:0.55; cursor:not-allowed}
+    .btn-ghost{
+      border-color: rgba(248,113,113,0.32);
+      background: rgba(15,23,42,0.60);
+      color: rgba(254,202,202,0.92);
+    }
+    .btn-ghost:hover{
+      border-color: rgba(248,113,113,0.95);
+      background: rgba(15,23,42,0.94);
+      box-shadow:0 10px 22px rgba(15,23,42,0.92);
+      transform: translateY(-1px);
+    }
+    .btn-primary{
+      background: radial-gradient(circle at top left, #f97373, #ef4444 45%, #991b1b 100%);
+      border-color: rgba(0,0,0,0.85);
+      color:#fff;
+      box-shadow:0 16px 34px rgba(127,29,29,0.78), 0 0 40px rgba(248,113,113,0.55);
+    }
+    .btn-primary:hover{transform:translateY(-1px); box-shadow:0 22px 44px rgba(127,29,29,0.86), 0 0 55px rgba(248,113,113,0.7)}
+    .btn-primary:active{transform:translateY(0); filter:brightness(0.98)}
+
+    /* Hero */
+    .hero{
+      padding:28px 18px 14px;
+    }
+    .hero-inner{
+      max-width:1200px;
+      margin:0 auto;
+      display:grid;
+      gap:14px;
+      grid-template-columns: 1fr;
+    }
+    @media(min-width:900px){
+      .hero-inner{
+        grid-template-columns: 1.2fr 0.8fr;
+        align-items:stretch;
+      }
+    }
+
+    .hero-card{
+      border-radius: var(--radius2);
+      border:1px solid rgba(248,113,113,0.35);
+      background:
+        linear-gradient(145deg, rgba(248,250,252,0.085), rgba(10,6,16,0.98)),
+        radial-gradient(circle at top left, rgba(248,113,113,0.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(127,29,29,0.18), transparent 60%);
+      box-shadow:
+        0 0 0 1px rgba(15,23,42,0.85),
+        0 22px 46px rgba(15,23,42,0.95),
+        0 0 42px rgba(248,113,113,0.22);
+      padding:18px 18px 16px;
+      backdrop-filter: blur(16px);
+      overflow:hidden;
+      position:relative;
+    }
+    .hero-title{
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:0.02em;
+      margin:0 0 6px;
+    }
+    .hero-sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      max-width:62ch;
+    }
+
+    .search-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .input, .select, .textarea{
+      width:100%;
+      border-radius:999px;
+      border:1px solid rgba(248,113,113,0.40);
+      background: rgba(15,23,42,0.88);
+      padding:10px 14px;
+      font-size:13px;
+      color:var(--ink);
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .05s ease;
+    }
+    .select{padding:10px 12px}
+    .input:focus, .select:focus, .textarea:focus{
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 1px rgba(248,113,113,0.65), 0 0 25px rgba(248,113,113,0.35);
+      background:#020617;
+      transform: translateY(-1px);
+    }
+    .input::placeholder, .textarea::placeholder{color: rgba(254,202,202,0.72)}
+    .textarea{
+      border-radius:18px;
+      min-height:84px;
+      resize:vertical;
+      padding:10px 12px;
+    }
+
+    .mini-kpis{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    @media(min-width:900px){
+      .mini-kpis{grid-template-columns: repeat(2, minmax(0,1fr))}
+    }
+    .kpi{
+      background: radial-gradient(circle at top, rgba(248,113,113,0.12), transparent 65%), rgba(15,23,42,0.94);
+      border-radius:20px;
+      border:1px solid rgba(248,113,113,0.45);
+      padding:10px 12px;
+      box-shadow: 0 14px 26px rgba(15,23,42,0.92), 0 0 22px rgba(248,113,113,0.18);
+    }
+    .kpi .label{font-size:11px;color:var(--muted)}
+    .kpi .value{font-size:18px;font-weight:700;margin-top:2px}
+    .kpi .hint{font-size:11px;color:rgba(254,202,202,0.85); margin-top:2px}
+
+    /* Filters card */
+    .filters{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    .filters-bar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(24,9,16,0.98));
+      border-radius: var(--radius2);
+      padding:10px;
+      border:1px solid rgba(248,113,113,0.38);
+      box-shadow: 0 12px 26px rgba(15,23,42,0.92);
+    }
+    .fgrp{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      flex: 1 1 160px;
+      min-width: 160px;
+    }
+    .flabel{
+      font-size:11px;
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .flabel span.small{opacity:0.8; font-weight:500}
+    .filters-bar .input, .filters-bar .select{padding:8px 12px; font-size:12px}
+
+    .filters-actions{
+      display:flex;
+      gap:8px;
+      align-items:flex-end;
+      flex: 0 0 auto;
+      margin-left:auto;
+    }
+
+    /* Content */
+    .content{
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 18px 26px;
+      width:100%;
+    }
+
+    .section-head{
+      margin:10px 0 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .section-title{
+      font-size:14px;
+      font-weight:650;
+      letter-spacing:0.03em;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .count-pill{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      background: rgba(248,113,113,0.12);
+      border:1px solid rgba(248,113,113,0.55);
+      color:#fee2e2;
+    }
+    .meta{
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    /* Grid */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap:12px;
+    }
+    @media(min-width:620px){ .grid{grid-template-columns: repeat(2, minmax(0, 1fr));} }
+    @media(min-width:980px){ .grid{grid-template-columns: repeat(3, minmax(0, 1fr));} }
+
+    .vcard{
+      background:
+        radial-gradient(circle at top left, rgba(248,113,113,0.16), transparent 55%),
+        rgba(15,23,42,0.96);
+      border:1px solid rgba(248,113,113,0.42);
+      border-radius: 22px;
+      box-shadow: var(--shadowSoft);
+      overflow:hidden;
+      transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      min-height: 340px;
+    }
+    .vcard:hover{
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: rgba(248,113,113,0.62);
+    }
+
+    .vthumb{
+      position:relative;
+      height: 185px;
+      background: rgba(2,6,23,0.7);
+      overflow:hidden;
+    }
+    .vthumb img{
+      width:100%; height:100%;
+      object-fit:cover;
+      display:block;
+      filter:saturate(1.03) contrast(1.02);
+      transform: scale(1.01);
+    }
+    .vthumb::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(to bottom, rgba(5,3,8,0.08), rgba(5,3,8,0.62));
+      pointer-events:none;
+    }
+
+    .badge-row{
+      position:absolute;
+      left:10px; right:10px; top:10px;
+      display:flex; justify-content:space-between; align-items:center;
+      gap:8px;
+      z-index:2;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:11px;
+      background: rgba(15,23,42,0.85);
+      border:1px solid rgba(248,113,113,0.45);
+      color: #fee2e2;
+      box-shadow:0 10px 22px rgba(15,23,42,0.90);
+      white-space:nowrap;
+    }
+    .chip.mono{font-family:var(--mono); font-size:10px; opacity:0.95}
+
+    .status{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:10px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+    }
+    .status.available{background: rgba(34,197,94,0.14); color:#bbf7d0; border-color: rgba(34,197,94,0.65)}
+    .status.sold{background: rgba(248,113,113,0.14); color:#fecaca; border-color: rgba(248,113,113,0.65)}
+    .status.pending{background: rgba(251,191,36,0.14); color:#fde68a; border-color: rgba(251,191,36,0.65)}
+
+    .vbody{
+      padding:12px 12px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      flex:1;
+    }
+
+    .vtitle{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .vname{
+      font-size:13px;
+      font-weight:750;
+      letter-spacing:0.02em;
+      line-height:1.25;
+    }
+    .vprice{
+      font-size:13px;
+      font-weight:800;
+      color:#fff;
+      white-space:nowrap;
+    }
+    .vmeta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      color: var(--muted);
+      font-size:11px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:10px;
+      background: rgba(248,113,113,0.10);
+      border:1px solid rgba(248,113,113,0.55);
+      color:#fee2e2;
+    }
+
+    .vfoot{
+      margin-top:auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .vcta{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-left:auto;
+    }
+    .mini{
+      padding:7px 12px;
+      font-size:12px;
+    }
+
+    /* Empty */
+    .empty{
+      padding:18px;
+      border-radius: var(--radius2);
+      border:1px solid rgba(248,113,113,0.30);
+      background: rgba(15,23,42,0.86);
+      color: var(--muted);
+      text-align:center;
+      box-shadow: var(--shadowSoft);
+    }
+
+    /* Skeleton */
+    .skeleton{
+      position:relative;
+      overflow:hidden;
+      background: rgba(15,23,42,0.88);
+      border:1px solid rgba(248,113,113,0.30);
+    }
+    .skeleton::after{
+      content:"";
+      position:absolute; inset:0;
+      transform: translateX(-60%);
+      background: linear-gradient(90deg, transparent, rgba(248,250,252,0.10), transparent);
+      animation: shimmer 1.1s ease-in-out infinite;
+    }
+    @keyframes shimmer{
+      0%{transform:translateX(-60%)}
+      100%{transform:translateX(60%)}
+    }
+    .sk-thumb{height:185px}
+    .sk-line{height:12px; border-radius:999px}
+    .sk-line.lg{height:14px}
+    .sk-wrap{padding:12px; display:flex; flex-direction:column; gap:10px}
+    .sk-row{display:flex; gap:10px; align-items:center}
+    .sk-row .sk-line{flex:1}
+    .sk-row .sk-line.sm{max-width:90px}
+
+    /* Modal */
+    .backdrop{
+      position:fixed; inset:0;
+      background: rgba(15,23,42,0.90);
+      backdrop-filter: blur(12px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      padding:16px;
+    }
+    .backdrop.show{display:flex}
+
+    .modal{
+      width:100%;
+      max-width: 980px;
+      background:
+        radial-gradient(circle at top left, rgba(248,113,113,0.20), transparent 50%),
+        rgba(10,6,16,0.98);
+      border-radius: 26px;
+      border:1px solid rgba(248,113,113,0.52);
+      box-shadow: 0 26px 60px rgba(15,23,42,0.98), 0 0 48px rgba(248,113,113,0.38);
+      overflow:hidden;
+    }
+
+    .modal-head{
+      padding:14px 16px 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      border-bottom:1px solid rgba(248,113,113,0.26);
+      background: linear-gradient(to right, rgba(24,9,16,0.98), rgba(15,23,42,0.98));
+    }
+    .modal-title{
+      font-size:14px;
+      font-weight:750;
+      letter-spacing:0.02em;
+      margin:0;
+    }
+    .modal-sub{font-size:12px; color:var(--muted); margin-top:4px}
+    .xbtn{
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      font-size:20px;
+      cursor:pointer;
+      width:34px;height:34px;
+      display:inline-flex;align-items:center;justify-content:center;
+      border-radius:999px;
+      transition: background .12s ease, color .12s ease;
+    }
+    .xbtn:hover{background: rgba(248,113,113,0.14); color:#fecaca}
+
+    .modal-body{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:0;
+    }
+    @media(min-width:900px){
+      .modal-body{grid-template-columns: 1.35fr 0.65fr}
+    }
+
+    .gallery{
+      padding:14px;
+      border-right:none;
+    }
+    @media(min-width:900px){
+      .gallery{border-right:1px solid rgba(248,113,113,0.22)}
+    }
+    .g-main{
+      border-radius: 18px;
+      overflow:hidden;
+      border:1px solid rgba(248,113,113,0.35);
+      background: rgba(2,6,23,0.6);
+      height: 340px;
+      box-shadow: 0 18px 36px rgba(15,23,42,0.95);
+    }
+    .g-main img{width:100%;height:100%;object-fit:cover; display:block}
+    .g-thumbs{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap:8px;
+    }
+    .g-thumb{
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(248,113,113,0.28);
+      background: rgba(2,6,23,0.6);
+      cursor:pointer;
+      height: 58px;
+      transition: transform .1s ease, border-color .1s ease;
+    }
+    .g-thumb:hover{transform: translateY(-1px); border-color: rgba(248,113,113,0.55)}
+    .g-thumb img{width:100%;height:100%;object-fit:cover; display:block}
+
+    .panel{
+      padding:14px 14px 14px;
+    }
+    .panel-block{
+      background: rgba(15,23,42,0.92);
+      border:1px solid rgba(248,113,113,0.35);
+      border-radius: 18px;
+      padding:12px;
+      box-shadow: 0 16px 30px rgba(15,23,42,0.92);
+      margin-bottom:10px;
+    }
+    .panel-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .panel-price{
+      font-size:16px;
+      font-weight:850;
+      color:#fff;
+    }
+    .panel-id{
+      font-family:var(--mono);
+      font-size:11px;
+      color: var(--muted);
+    }
+    .specs{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:8px;
+      margin-top:10px;
+    }
+    .spec{
+      border-radius:14px;
+      padding:9px 10px;
+      border:1px solid rgba(248,113,113,0.24);
+      background: rgba(2,6,23,0.55);
+    }
+    .spec .k{font-size:10px; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase}
+    .spec .v{font-size:12px; font-weight:700; margin-top:2px}
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:8px;
+    }
+    .form-grid .input, .form-grid .select{border-radius:16px}
+    .form-grid.two{grid-template-columns: repeat(2, minmax(0,1fr))}
+    .note{
+      font-size:11px;
+      color: rgba(254,202,202,0.85);
+      line-height:1.35;
+    }
+    .status-line{
+      min-height:18px;
+      font-size:12px;
+      color: var(--muted);
+      margin-top:8px;
+    }
+    .status-line.error{color:var(--bad)}
+
+    /* Toast */
+    #toast{
+      position:fixed;
+      bottom:16px;
+      right:16px;
+      z-index:60;
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:12px;
+      display:none;
+      align-items:center;
+      gap:8px;
+      background: rgba(15,23,42,0.98);
+      border:1px solid rgba(248,113,113,0.6);
+      color: var(--muted);
+      box-shadow: 0 16px 30px rgba(15,23,42,0.98), 0 0 26px rgba(248,113,113,0.35);
+    }
+    #toast.show{display:flex}
+    #toast.success{border-color: rgba(34,197,94,0.72); color:#bbf7d0}
+    #toast.error{border-color: rgba(248,113,113,0.9); color:#fecaca}
+    #toast-dot{width:8px;height:8px;border-radius:999px;background:var(--accent)}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="badge">C</div>
+          <div class="brand-text">
+            <div class="brand-title" id="brandTitle">Carsales Storefront</div>
+            <div class="brand-sub" id="brandSub">Live inventory</div>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <div class="pill" title="API connection status">
+            <span class="dot off" id="apiDot"></span>
+            <span id="apiStatus">Connecting…</span>
+          </div>
+          <button class="btn btn-ghost" id="btnRefresh" type="button">
+            <span>Refresh</span><span>⟳</span>
+          </button>
+          <a class="btn btn-primary" href="/apps/dealer" title="Dealership portal">
+            <span>Dealer</span><span>→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-card">
+          <h1 class="hero-title">Find your next vehicle.</h1>
+          <p class="hero-sub">
+            Browse verified listings. Filter by make, model, year and price. Tap a vehicle to view full details and request a viewing.
+          </p>
+
+          <div class="search-row">
+            <input id="q" class="input" type="search" placeholder="Search: Toyota, BMW, 2018, SUV, Blue, VIN, Stock ID…" />
+            <button id="btnSearch" class="btn btn-primary" type="button"><span>Search</span><span>⌕</span></button>
+            <button id="btnClear" class="btn btn-ghost" type="button"><span>Clear</span><span>×</span></button>
+          </div>
+
+          <div class="filters" aria-label="Filters">
+            <div class="filters-bar">
+              <div class="fgrp">
+                <div class="flabel"><span>Make</span><span class="small">Optional</span></div>
+                <select id="make" class="select">
+                  <option value="">All makes</option>
+                </select>
+              </div>
+
+              <div class="fgrp">
+                <div class="flabel"><span>Model</span><span class="small">Optional</span></div>
+                <select id="model" class="select" disabled>
+                  <option value="">All models</option>
+                </select>
+              </div>
+
+              <div class="fgrp">
+                <div class="flabel"><span>Year</span><span class="small">Range</span></div>
+                <select id="year" class="select">
+                  <option value="">Any year</option>
+                </select>
+              </div>
+
+              <div class="fgrp">
+                <div class="flabel"><span>Price</span><span class="small">Max</span></div>
+                <select id="priceMax" class="select">
+                  <option value="">No max</option>
+                  <option value="500000">≤ 500,000</option>
+                  <option value="1000000">≤ 1,000,000</option>
+                  <option value="2000000">≤ 2,000,000</option>
+                  <option value="3000000">≤ 3,000,000</option>
+                  <option value="5000000">≤ 5,000,000</option>
+                  <option value="8000000">≤ 8,000,000</option>
+                  <option value="10000000">≤ 10,000,000</option>
+                </select>
+              </div>
+
+              <div class="fgrp">
+                <div class="flabel"><span>Status</span><span class="small">Inventory</span></div>
+                <select id="status" class="select">
+                  <option value="">All</option>
+                  <option value="available">Available</option>
+                  <option value="pending">Pending</option>
+                  <option value="sold">Sold</option>
+                </select>
+              </div>
+
+              <div class="fgrp">
+                <div class="flabel"><span>Sort</span><span class="small">Default</span></div>
+                <select id="sort" class="select">
+                  <option value="newest">Newest</option>
+                  <option value="priceAsc">Price: Low → High</option>
+                  <option value="priceDesc">Price: High → Low</option>
+                  <option value="yearDesc">Year: New → Old</option>
+                  <option value="yearAsc">Year: Old → New</option>
+                </select>
+              </div>
+
+              <div class="filters-actions">
+                <button id="btnApply" class="btn btn-ghost" type="button"><span>Apply</span><span>▸</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="mini-kpis">
+            <div class="kpi">
+              <div class="label">Listings (current view)</div>
+              <div class="value" id="kpiTotal">–</div>
+              <div class="hint">Filters applied</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Available</div>
+              <div class="value" id="kpiAvailable">–</div>
+              <div class="hint">Ready for viewing</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Pending</div>
+              <div class="value" id="kpiPending">–</div>
+              <div class="hint">In negotiation</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Sold</div>
+              <div class="value" id="kpiSold">–</div>
+              <div class="hint">Recently closed</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px" class="panel-block">
+            <div class="meta" style="justify-content:space-between">
+              <span>Tip: Tap any vehicle to open details.</span>
+              <span class="count-pill" id="lastUpdated">…</span>
+            </div>
+            <div class="note" style="margin-top:8px">
+              This storefront is powered by your dealership inventory manager. Dealers upload vehicles and media, customers browse here.
+            </div>
+          </div>
+
+          <div class="panel-block">
+            <div class="meta" style="justify-content:space-between">
+              <span>Need to list vehicles?</span>
+              <a class="btn btn-primary mini" href="/apps/dealer"><span>Dealer Portal</span><span>→</span></a>
+            </div>
+            <div class="note" style="margin-top:8px">
+              Dealers log in using <b>Dealer ID</b>. Media uploads go to your bucket (<span style="font-family:var(--mono)">samplemedia1</span>) via backend services.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <div class="section-head">
+        <div class="section-title">
+          Listings
+          <span class="count-pill" id="countPill">0</span>
+        </div>
+        <div class="meta" id="metaLine">Ready.</div>
+      </div>
+
+      <div id="grid" class="grid" aria-live="polite"></div>
+      <div id="empty" class="empty hidden">No vehicles match your filters.</div>
+    </main>
+
+    <!-- VEHICLE MODAL -->
+    <div id="backdrop" class="backdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-label="Vehicle details">
+        <div class="modal-head">
+          <div>
+            <h3 class="modal-title" id="mTitle">Vehicle</h3>
+            <div class="modal-sub" id="mSub">—</div>
+          </div>
+          <button class="xbtn" id="mClose" type="button" aria-label="Close">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="gallery">
+            <div class="g-main" id="gMain">
+              <img id="gMainImg" alt="Vehicle image" />
+            </div>
+            <div class="g-thumbs" id="gThumbs"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-block">
+              <div class="panel-row">
+                <div>
+                  <div class="panel-price" id="mPrice">—</div>
+                  <div class="panel-id" id="mId">—</div>
+                </div>
+                <div id="mStatus" class="status available">AVAILABLE</div>
+              </div>
+
+              <div class="specs" id="mSpecs"></div>
+
+              <div style="margin-top:10px" class="note" id="mNotes"></div>
+            </div>
+
+            <div class="panel-block">
+              <div class="meta" style="justify-content:space-between">
+                <span style="font-weight:700">Request a viewing</span>
+                <span class="chip mono" id="mDealer">DEALER-—</span>
+              </div>
+
+              <div style="height:10px"></div>
+
+              <div class="form-grid two">
+                <input id="fName" class="input" placeholder="Your name" />
+                <input id="fPhone" class="input" placeholder="Phone / WhatsApp" />
+              </div>
+
+              <div style="height:8px"></div>
+
+              <div class="form-grid">
+                <input id="fEmail" class="input" type="email" placeholder="Email (optional)" />
+              </div>
+
+              <div style="height:8px"></div>
+
+              <div class="form-grid two">
+                <select id="fType" class="select">
+                  <option value="viewing">Book viewing</option>
+                  <option value="info">Request info</option>
+                </select>
+                <input id="fDate" class="input" type="date" />
+              </div>
+
+              <div style="height:8px"></div>
+
+              <textarea id="fMsg" class="textarea" placeholder="Message (preferred time, questions, trade-in details…)"></textarea>
+
+              <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; justify-content:flex-end">
+                <button class="btn btn-ghost" id="btnCopyLink" type="button"><span>Copy link</span><span>⧉</span></button>
+                <button class="btn btn-primary" id="btnSubmit" type="button"><span>Send request</span><span>✔</span></button>
+              </div>
+
+              <div id="formStatus" class="status-line"></div>
+            </div>
+
+            <div class="panel-block">
+              <div class="note">
+                We’ll contact you shortly. For urgent queries, call the dealership directly once contact is shared.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast">
+      <div id="toast-dot"></div>
+      <div id="toast-msg"></div>
+    </div>
+
+  </div>
+
+  <script>
+    /**
+     * Storefront API shape (recommended)
+     * - GET  /api/public/vehicles?make=&model=&q=&year=&priceMax=&status=&sort=
+     *   -> { ok:true, dealerName?, vehicles:[...] }
+     *
+     * - POST /api/public/requests
+     *   body: { dealerId, vehicleId, type, name, phone, email, preferredDate, message, pageUrl }
+     *   -> { ok:true, requestId }
+     */
+
+    const API = {
+      vehicles: (qs) => `/api/public/vehicles${qs ? `?${qs}` : ""}`,
+      request: () => `/api/public/requests`
+    };
+
+    const els = {
+      apiDot: document.getElementById("apiDot"),
+      apiStatus: document.getElementById("apiStatus"),
+      btnRefresh: document.getElementById("btnRefresh"),
+      btnSearch: document.getElementById("btnSearch"),
+      btnClear: document.getElementById("btnClear"),
+      btnApply: document.getElementById("btnApply"),
+
+      q: document.getElementById("q"),
+      make: document.getElementById("make"),
+      model: document.getElementById("model"),
+      year: document.getElementById("year"),
+      priceMax: document.getElementById("priceMax"),
+      status: document.getElementById("status"),
+      sort: document.getElementById("sort"),
+
+      grid: document.getElementById("grid"),
+      empty: document.getElementById("empty"),
+      metaLine: document.getElementById("metaLine"),
+      countPill: document.getElementById("countPill"),
+      lastUpdated: document.getElementById("lastUpdated"),
+
+      kpiTotal: document.getElementById("kpiTotal"),
+      kpiAvailable: document.getElementById("kpiAvailable"),
+      kpiPending: document.getElementById("kpiPending"),
+      kpiSold: document.getElementById("kpiSold"),
+
+      backdrop: document.getElementById("backdrop"),
+      mClose: document.getElementById("mClose"),
+      mTitle: document.getElementById("mTitle"),
+      mSub: document.getElementById("mSub"),
+      mPrice: document.getElementById("mPrice"),
+      mId: document.getElementById("mId"),
+      mStatus: document.getElementById("mStatus"),
+      mDealer: document.getElementById("mDealer"),
+      mSpecs: document.getElementById("mSpecs"),
+      mNotes: document.getElementById("mNotes"),
+      gMainImg: document.getElementById("gMainImg"),
+      gThumbs: document.getElementById("gThumbs"),
+
+      fName: document.getElementById("fName"),
+      fPhone: document.getElementById("fPhone"),
+      fEmail: document.getElementById("fEmail"),
+      fType: document.getElementById("fType"),
+      fDate: document.getElementById("fDate"),
+      fMsg: document.getElementById("fMsg"),
+      btnSubmit: document.getElementById("btnSubmit"),
+      btnCopyLink: document.getElementById("btnCopyLink"),
+      formStatus: document.getElementById("formStatus"),
+
+      toast: document.getElementById("toast"),
+      toastMsg: document.getElementById("toast-msg"),
+      toastDot: document.getElementById("toast-dot"),
+    };
+
+    let state = {
+      vehicles: [],
+      current: null,
+      apiOnline: false,
+      dealerName: null,
+    };
+
+    // ---- Init ----
+    document.addEventListener("DOMContentLoaded", () => {
+      seedYearOptions();
+      wireUI();
+      loadVehicles();
+    });
+
+    function wireUI(){
+      els.btnRefresh.addEventListener("click", loadVehicles);
+      els.btnSearch.addEventListener("click", loadVehicles);
+      els.btnApply.addEventListener("click", loadVehicles);
+
+      els.btnClear.addEventListener("click", () => {
+        els.q.value = "";
+        els.make.value = "";
+        els.model.value = "";
+        els.model.disabled = true;
+        els.year.value = "";
+        els.priceMax.value = "";
+        els.status.value = "";
+        els.sort.value = "newest";
+        loadVehicles();
+      });
+
+      els.q.addEventListener("keydown", (e) => { if(e.key === "Enter") loadVehicles(); });
+
+      els.make.addEventListener("change", () => {
+        // model list will update after loadVehicles; keep UX quick:
+        els.model.value = "";
+        loadVehicles();
+      });
+
+      els.model.addEventListener("change", loadVehicles);
+      els.year.addEventListener("change", loadVehicles);
+      els.priceMax.addEventListener("change", loadVehicles);
+      els.status.addEventListener("change", loadVehicles);
+      els.sort.addEventListener("change", loadVehicles);
+
+      // Modal close
+      els.mClose.addEventListener("click", closeModal);
+      els.backdrop.addEventListener("click", (e) => {
+        if(e.target === els.backdrop) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if(e.key === "Escape" && els.backdrop.classList.contains("show")) closeModal();
+      });
+
+      // Form submit
+      els.btnSubmit.addEventListener("click", submitRequest);
+
+      // Copy link
+      els.btnCopyLink.addEventListener("click", async () => {
+        try{
+          await navigator.clipboard.writeText(window.location.href);
+          toast("Link copied.", "success");
+        }catch(e){
+          toast("Could not copy link.", "error");
+        }
+      });
+    }
+
+    // ---- Data loading ----
+    async function loadVehicles(){
+      setMeta("Loading inventory…");
+      setApiStatus("Connecting…", "off");
+      renderSkeletons();
+
+      const qs = buildQueryString();
+      try{
+        const res = await fetch(API.vehicles(qs), { headers: { "Accept": "application/json" } });
+        if(!res.ok) throw new Error("API not ready");
+        const data = await res.json();
+        if(!data || data.ok !== true || !Array.isArray(data.vehicles)) throw new Error("Bad response");
+
+        state.apiOnline = true;
+        state.dealerName = data.dealerName || null;
+        state.vehicles = normalizeVehicles(data.vehicles);
+
+        setApiStatus("Live", "on");
+        applyMetaBrand();
+      }catch(err){
+        // Fallback demo mode
+        state.apiOnline = false;
+        state.dealerName = null;
+        state.vehicles = demoVehicles();
+
+        setApiStatus("Demo", "off");
+        toast("API not connected yet — showing demo inventory.", "error");
+      }
+
+      populateMakeModelOptions(state.vehicles);
+      render(state.vehicles);
+      updateKpis(state.vehicles);
+      els.lastUpdated.textContent = "Updated: " + formatShort(new Date());
+      setMeta("Ready.");
+    }
+
+    function applyMetaBrand(){
+      if(state.dealerName){
+        document.getElementById("brandTitle").textContent = state.dealerName + " — Storefront";
+      }else{
+        document.getElementById("brandTitle").textContent = "Carsales Storefront";
+      }
+    }
+
+    function buildQueryString(){
+      const params = new URLSearchParams();
+      const q = (els.q.value || "").trim();
+      const make = els.make.value || "";
+      const model = els.model.value || "";
+      const year = els.year.value || "";
+      const priceMax = els.priceMax.value || "";
+      const status = els.status.value || "";
+      const sort = els.sort.value || "newest";
+
+      if(q) params.set("q", q);
+      if(make) params.set("make", make);
+      if(model) params.set("model", model);
+      if(year) params.set("year", year);
+      if(priceMax) params.set("priceMax", priceMax);
+      if(status) params.set("status", status);
+      if(sort) params.set("sort", sort);
+
+      return params.toString();
+    }
+
+    function normalizeVehicles(list){
+      return (list || []).map(v => ({
+        vehicleId: v.vehicleId || v.id || v.stockId || "VEH-" + Math.random().toString(16).slice(2,8).toUpperCase(),
+        dealerId: v.dealerId || v.dealer || "DEALER-0001",
+        make: v.make || "",
+        model: v.model || "",
+        year: safeNum(v.year),
+        price: safeNum(v.price),
+        currency: v.currency || "JMD",
+        status: (v.status || "available").toLowerCase(),
+        mileage: safeNum(v.mileage),
+        transmission: v.transmission || "",
+        fuel: v.fuel || "",
+        bodyType: v.bodyType || v.type || "",
+        color: v.color || "",
+        location: v.location || "",
+        notes: v.notes || v.description || "",
+        coverUrl: (v.coverUrl || (v.images && v.images[0]) || v.photoUrl || ""),
+        images: Array.isArray(v.images) ? v.images : (v.coverUrl ? [v.coverUrl] : []),
+        createdAt: v.createdAt || v.created || new Date().toISOString()
+      }));
+    }
+
+    // ---- Rendering ----
+    function render(list){
+      const vehicles = applyClientSideFilters(list);
+
+      els.grid.innerHTML = "";
+      els.empty.classList.add("hidden");
+
+      els.countPill.textContent = String(vehicles.length);
+      document.getElementById("countPill").textContent = String(vehicles.length);
+
+      if(!vehicles.length){
+        els.empty.classList.remove("hidden");
+        return;
+      }
+
+      vehicles.forEach(v => els.grid.appendChild(renderCard(v)));
+    }
+
+    function renderCard(v){
+      const card = document.createElement("div");
+      card.className = "vcard";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", "Open " + titleLine(v));
+      card.addEventListener("click", () => openModal(v));
+      card.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " ") openModal(v);
+      });
+
+      const thumb = document.createElement("div");
+      thumb.className = "vthumb";
+
+      const img = document.createElement("img");
+      img.alt = titleLine(v);
+      img.loading = "lazy";
+      img.src = v.coverUrl || placeholderImage();
+      img.onerror = () => { img.src = placeholderImage(); };
+
+      const badgeRow = document.createElement("div");
+      badgeRow.className = "badge-row";
+
+      const chipId = document.createElement("div");
+      chipId.className = "chip mono";
+      chipId.textContent = v.vehicleId;
+
+      const stat = document.createElement("div");
+      stat.className = "status " + statusClass(v.status);
+      stat.textContent = (v.status || "available").toUpperCase();
+
+      badgeRow.appendChild(chipId);
+      badgeRow.appendChild(stat);
+
+      thumb.appendChild(img);
+      thumb.appendChild(badgeRow);
+
+      const body = document.createElement("div");
+      body.className = "vbody";
+
+      const title = document.createElement("div");
+      title.className = "vtitle";
+
+      const name = document.createElement("div");
+      name.className = "vname";
+      name.textContent = titleLine(v);
+
+      const price = document.createElement("div");
+      price.className = "vprice";
+      price.textContent = formatMoney(v.price, v.currency);
+
+      title.appendChild(name);
+      title.appendChild(price);
+
+      const meta = document.createElement("div");
+      meta.className = "vmeta";
+      meta.appendChild(tag(v.year ? String(v.year) : "Year —"));
+      meta.appendChild(tag(v.bodyType || "Type —"));
+      meta.appendChild(tag(v.transmission || "Trans —"));
+      meta.appendChild(tag(v.color || "Color —"));
+
+      const foot = document.createElement("div");
+      foot.className = "vfoot";
+
+      const left = document.createElement("div");
+      left.className = "vmeta";
+      const loc = (v.location || "").trim();
+      left.textContent = loc ? ("📍 " + loc) : "Tap for details";
+
+      const cta = document.createElement("div");
+      cta.className = "vcta";
+
+      const btn1 = document.createElement("button");
+      btn1.className = "btn btn-ghost mini";
+      btn1.type = "button";
+      btn1.textContent = "Details";
+      btn1.addEventListener("click", (e) => { e.stopPropagation(); openModal(v); });
+
+      const btn2 = document.createElement("button");
+      btn2.className = "btn btn-primary mini";
+      btn2.type = "button";
+      btn2.textContent = "Request";
+      btn2.addEventListener("click", (e) => { e.stopPropagation(); openModal(v); });
+
+      cta.appendChild(btn1);
+      cta.appendChild(btn2);
+
+      foot.appendChild(left);
+      foot.appendChild(cta);
+
+      body.appendChild(title);
+      body.appendChild(meta);
+      body.appendChild(foot);
+
+      card.appendChild(thumb);
+      card.appendChild(body);
+
+      return card;
+    }
+
+    function renderSkeletons(){
+      els.grid.innerHTML = "";
+      els.empty.classList.add("hidden");
+      for(let i=0;i<6;i++){
+        const s = document.createElement("div");
+        s.className = "vcard skeleton";
+        const t = document.createElement("div");
+        t.className = "sk-thumb";
+        const w = document.createElement("div");
+        w.className = "sk-wrap";
+        const a = document.createElement("div");
+        a.className = "sk-row";
+        a.appendChild(skLine("lg"));
+        a.appendChild(skLine("sm"));
+        const b = document.createElement("div");
+        b.className = "sk-row";
+        b.appendChild(skLine(""));
+        const c = document.createElement("div");
+        c.className = "sk-row";
+        c.appendChild(skLine(""));
+        w.appendChild(a); w.appendChild(b); w.appendChild(c);
+        s.appendChild(divWith("skeleton sk-thumb", "")); // thumb shell
+        s.appendChild(w);
+        els.grid.appendChild(s);
+      }
+    }
+    function skLine(size){
+      const d = document.createElement("div");
+      d.className = "skeleton sk-line " + (size || "");
+      return d;
+    }
+    function divWith(cls, txt){
+      const d = document.createElement("div");
+      d.className = cls;
+      d.textContent = txt || "";
+      return d;
+    }
+
+    // ---- Modal ----
+    function openModal(v){
+      state.current = v;
+
+      els.mTitle.textContent = titleLine(v);
+      els.mSub.textContent = [v.bodyType, v.transmission, v.fuel].filter(Boolean).join(" · ") || "Vehicle details";
+      els.mPrice.textContent = formatMoney(v.price, v.currency);
+      els.mId.textContent = v.vehicleId + (v.mileage ? (" · " + formatInt(v.mileage) + " km") : "");
+      els.mDealer.textContent = v.dealerId || "DEALER-—";
+
+      els.mStatus.className = "status " + statusClass(v.status);
+      els.mStatus.textContent = (v.status || "available").toUpperCase();
+
+      // specs
+      els.mSpecs.innerHTML = "";
+      const specs = [
+        ["Make", v.make || "—"],
+        ["Model", v.model || "—"],
+        ["Year", v.year ? String(v.year) : "—"],
+        ["Mileage", v.mileage ? formatInt(v.mileage) + " km" : "—"],
+        ["Transmission", v.transmission || "—"],
+        ["Fuel", v.fuel || "—"],
+        ["Color", v.color || "—"],
+        ["Location", v.location || "—"],
+      ];
+      specs.forEach(([k,val]) => {
+        const box = document.createElement("div");
+        box.className = "spec";
+        box.innerHTML = `<div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(val)}</div>`;
+        els.mSpecs.appendChild(box);
+      });
+
+      els.mNotes.textContent = v.notes ? v.notes : "No additional notes from the dealer.";
+
+      // gallery
+      const imgs = (v.images && v.images.length) ? v.images : [placeholderImage()];
+      setMainImage(imgs[0]);
+      els.gThumbs.innerHTML = "";
+      imgs.slice(0, 10).forEach((url) => {
+        const t = document.createElement("div");
+        t.className = "g-thumb";
+        const im = document.createElement("img");
+        im.alt = "Vehicle thumbnail";
+        im.loading = "lazy";
+        im.src = url || placeholderImage();
+        im.onerror = () => { im.src = placeholderImage(); };
+        t.appendChild(im);
+        t.addEventListener("click", () => setMainImage(url));
+        els.gThumbs.appendChild(t);
+      });
+
+      // reset form status
+      els.formStatus.textContent = "";
+      els.formStatus.classList.remove("error");
+
+      // recommended default date = tomorrow
+      els.fDate.value = defaultDateTomorrow();
+
+      els.backdrop.classList.add("show");
+      els.backdrop.setAttribute("aria-hidden", "false");
+    }
+
+    function setMainImage(url){
+      els.gMainImg.src = url || placeholderImage();
+      els.gMainImg.onerror = () => { els.gMainImg.src = placeholderImage(); };
+    }
+
+    function closeModal(){
+      els.backdrop.classList.remove("show");
+      els.backdrop.setAttribute("aria-hidden", "true");
+      state.current = null;
+    }
+
+    // ---- Submit request ----
+    async function submitRequest(){
+      if(!state.current) return;
+
+      const name = (els.fName.value || "").trim();
+      const phone = (els.fPhone.value || "").trim();
+      const email = (els.fEmail.value || "").trim();
+      const type = els.fType.value || "viewing";
+      const preferredDate = els.fDate.value || "";
+      const message = (els.fMsg.value || "").trim();
+
+      if(!name || !phone){
+        setFormStatus("Please enter your name and phone/WhatsApp.", true);
+        return;
+      }
+
+      const payload = {
+        dealerId: state.current.dealerId,
+        vehicleId: state.current.vehicleId,
+        type,
+        name,
+        phone,
+        email,
+        preferredDate,
+        message,
+        pageUrl: window.location.href
+      };
+
+      setFormStatus("Sending request…", false);
+      els.btnSubmit.disabled = true;
+
+      try{
+        const res = await fetch(API.request(), {
+          method:"POST",
+          headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error("Request failed");
+        const data = await res.json();
+        if(!data || data.ok !== true) throw new Error(data && data.message ? data.message : "Request failed");
+
+        setFormStatus("Request sent. We’ll contact you shortly.", false);
+        toast("Request sent ✔", "success");
+
+        // Light reset
+        els.fMsg.value = "";
+      }catch(err){
+        setFormStatus("Could not send request yet (backend not ready).", true);
+        toast("Request not sent.", "error");
+      }finally{
+        els.btnSubmit.disabled = false;
+      }
+    }
+
+    function setFormStatus(msg, isError){
+      els.formStatus.textContent = msg || "";
+      els.formStatus.classList.toggle("error", !!isError);
+    }
+
+    // ---- Filters / options ----
+    function populateMakeModelOptions(list){
+      const makeSel = els.make;
+      const modelSel = els.model;
+
+      const currentMake = makeSel.value || "";
+      const currentModel = modelSel.value || "";
+
+      const makes = uniq(list.map(v => v.make).filter(Boolean)).sort(alpha);
+      makeSel.innerHTML = `<option value="">All makes</option>` + makes.map(m => `<option value="${escapeAttr(m)}">${escapeHtml(m)}</option>`).join("");
+      makeSel.value = makes.includes(currentMake) ? currentMake : "";
+
+      const models = uniq(list.filter(v => (makeSel.value ? v.make === makeSel.value : true))
+        .map(v => v.model).filter(Boolean)).sort(alpha);
+
+      modelSel.disabled = !makeSel.value || models.length === 0;
+      modelSel.innerHTML = `<option value="">All models</option>` + models.map(m => `<option value="${escapeAttr(m)}">${escapeHtml(m)}</option>`).join("");
+      modelSel.value = models.includes(currentModel) ? currentModel : "";
+    }
+
+    function applyClientSideFilters(list){
+      // If API already filters, this just keeps demo mode consistent
+      let out = [...(list || [])];
+
+      const q = (els.q.value || "").trim().toLowerCase();
+      const make = els.make.value || "";
+      const model = els.model.value || "";
+      const year = els.year.value || "";
+      const priceMax = safeNum(els.priceMax.value);
+      const status = (els.status.value || "").toLowerCase();
+      const sort = els.sort.value || "newest";
+
+      if(q){
+        out = out.filter(v => {
+          const blob = [
+            v.vehicleId, v.make, v.model, v.year, v.bodyType, v.color, v.transmission, v.fuel, v.location, v.notes
+          ].filter(Boolean).join(" ").toLowerCase();
+          return blob.includes(q);
+        });
+      }
+      if(make) out = out.filter(v => v.make === make);
+      if(model) out = out.filter(v => v.model === model);
+      if(year) out = out.filter(v => String(v.year || "") === String(year));
+      if(priceMax) out = out.filter(v => (v.price || 0) <= priceMax);
+      if(status) out = out.filter(v => (v.status || "available") === status);
+
+      // Sort
+      out.sort((a,b) => {
+        if(sort === "priceAsc") return (a.price||0) - (b.price||0);
+        if(sort === "priceDesc") return (b.price||0) - (a.price||0);
+        if(sort === "yearAsc") return (a.year||0) - (b.year||0);
+        if(sort === "yearDesc") return (b.year||0) - (a.year||0);
+        // newest (createdAt)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      return out;
+    }
+
+    function seedYearOptions(){
+      const sel = els.year;
+      const now = new Date().getFullYear();
+      const min = now - 25;
+      const years = [];
+      for(let y=now; y>=min; y--) years.push(String(y));
+      sel.innerHTML = `<option value="">Any year</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
+    }
+
+    function updateKpis(list){
+      const vehicles = applyClientSideFilters(list);
+      const total = vehicles.length;
+      let available=0, pending=0, sold=0;
+      vehicles.forEach(v => {
+        const s = (v.status || "available").toLowerCase();
+        if(s === "available") available++;
+        else if(s === "pending") pending++;
+        else if(s === "sold") sold++;
+      });
+
+      els.kpiTotal.textContent = total;
+      els.kpiAvailable.textContent = available;
+      els.kpiPending.textContent = pending;
+      els.kpiSold.textContent = sold;
+    }
+
+    // ---- UI helpers ----
+    function setMeta(text){
+      els.metaLine.textContent = text || "Ready.";
+    }
+
+    function setApiStatus(text, mode){
+      els.apiStatus.textContent = text || "—";
+      els.apiDot.classList.remove("off","err");
+      if(mode === "on"){
+        els.apiDot.classList.remove("off","err");
+        els.apiDot.style.background = "var(--good)";
+        els.apiDot.classList.remove("off");
+        els.apiDot.classList.remove("err");
+      }else if(mode === "err"){
+        els.apiDot.classList.add("err");
+      }else{
+        els.apiDot.classList.add("off");
+      }
+    }
+
+    function toast(message, type){
+      els.toastMsg.textContent = message || "";
+      els.toast.classList.remove("success","error");
+      if(type === "success"){
+        els.toast.classList.add("success");
+        els.toastDot.style.background = "#22c55e";
+      }else if(type === "error"){
+        els.toast.classList.add("error");
+        els.toastDot.style.background = "#f97373";
+      }else{
+        els.toastDot.style.background = "var(--accent)";
+      }
+      els.toast.classList.add("show");
+      window.clearTimeout(window.__toastT);
+      window.__toastT = window.setTimeout(() => els.toast.classList.remove("show"), 3200);
+    }
+
+    // ---- Formatting ----
+    function titleLine(v){
+      const bits = [];
+      if(v.year) bits.push(v.year);
+      if(v.make) bits.push(v.make);
+      if(v.model) bits.push(v.model);
+      if(v.bodyType && !bits.includes(v.bodyType)) bits.push(v.bodyType);
+      return bits.join(" ") || "Vehicle";
+    }
+
+    function formatMoney(amount, currency){
+      const n = safeNum(amount);
+      if(!n) return "Price on request";
+      const cur = (currency || "JMD").toUpperCase();
+      try{
+        // Jamaica uses JMD; keep it simple across browsers
+        return cur + " " + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+      }catch(e){
+        return cur + " " + String(n);
+      }
+    }
+
+    function formatInt(n){
+      const x = safeNum(n);
+      return x ? x.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "—";
+    }
+
+    function formatShort(d){
+      try{
+        const dt = (d instanceof Date) ? d : new Date(d);
+        const day = String(dt.getDate()).padStart(2,"0");
+        const mon = String(dt.getMonth()+1).padStart(2,"0");
+        const yr = String(dt.getFullYear()).slice(-2);
+        const hr = String(dt.getHours()).padStart(2,"0");
+        const mi = String(dt.getMinutes()).padStart(2,"0");
+        return `${day}/${mon}/${yr} ${hr}:${mi}`;
+      }catch(e){
+        return "—";
+      }
+    }
+
+    function defaultDateTomorrow(){
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function statusClass(s){
+      const v = (s || "available").toLowerCase();
+      if(v === "sold") return "sold";
+      if(v === "pending") return "pending";
+      return "available";
+    }
+
+    function tag(text){
+      const t = document.createElement("span");
+      t.className = "tag";
+      t.textContent = text || "—";
+      return t;
+    }
+
+    function safeNum(v){
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function uniq(arr){
+      return Array.from(new Set(arr.map(x => String(x).trim()).filter(Boolean)));
+    }
+
+    function alpha(a,b){
+      return String(a).localeCompare(String(b));
+    }
+
+    function placeholderImage(){
+      // a tiny embedded svg so the UI looks good without images
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#1f0b12"/>
+              <stop offset="0.5" stop-color="#0b1020"/>
+              <stop offset="1" stop-color="#020617"/>
+            </linearGradient>
+          </defs>
+          <rect width="1200" height="700" fill="url(#g)"/>
+          <circle cx="230" cy="140" r="120" fill="rgba(248,113,113,0.20)"/>
+          <circle cx="980" cy="560" r="180" fill="rgba(248,113,113,0.12)"/>
+          <text x="60" y="360" fill="rgba(254,202,202,0.85)" font-size="48" font-family="system-ui, -apple-system, Segoe UI">
+            Vehicle photo unavailable
+          </text>
+          <text x="60" y="420" fill="rgba(254,202,202,0.70)" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas">
+            Upload images in dealer portal
+          </text>
+        </svg>`;
+      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#39;");
+    }
+    function escapeAttr(s){
+      return escapeHtml(s).replaceAll('"',"&quot;");
+    }
+
+    // ---- Demo data (until API is wired) ----
+    function demoVehicles(){
+      return normalizeVehicles([
+        {
+          vehicleId:"VEH-10021",
+          dealerId:"DEALER-0001",
+          make:"Toyota", model:"Vitz", year:2018, price:1250000, currency:"JMD",
+          status:"available", mileage:62000, transmission:"Automatic", fuel:"Gasoline",
+          bodyType:"Hatchback", color:"Silver", location:"Kingston",
+          notes:"Clean unit. Financing options available. Trade-ins welcomed.",
+          images:[
+            "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1400&q=70",
+            "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1400&q=70",
+            "https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1400&q=70"
+          ],
+          createdAt: new Date(Date.now()-86400000*2).toISOString()
+        },
+        {
+          vehicleId:"VEH-10022",
+          dealerId:"DEALER-0001",
+          make:"Honda", model:"Civic", year:2017, price:2200000, currency:"JMD",
+          status:"pending", mileage:88000, transmission:"Automatic", fuel:"Gasoline",
+          bodyType:"Sedan", color:"Blue", location:"St. Andrew",
+          notes:"Sport trim. Pending deposit. Contact to confirm availability.",
+          images:[
+            "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1400&q=70",
+            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=70"
+          ],
+          createdAt: new Date(Date.now()-86400000*6).toISOString()
+        },
+        {
+          vehicleId:"VEH-10023",
+          dealerId:"DEALER-0001",
+          make:"BMW", model:"3 Series", year:2016, price:3950000, currency:"JMD",
+          status:"available", mileage:74000, transmission:"Automatic", fuel:"Gasoline",
+          bodyType:"Sedan", color:"Black", location:"Montego Bay",
+          notes:"Premium interior, sunroof, very well kept.",
+          images:[
+            "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=70",
+            "https://images.unsplash.com/photo-1541443131876-44b03de101c5?auto=format&fit=crop&w=1400&q=70"
+          ],
+          createdAt: new Date(Date.now()-86400000*1).toISOString()
+        },
+        {
+          vehicleId:"VEH-10024",
+          dealerId:"DEALER-0001",
+          make:"Nissan", model:"X-Trail", year:2019, price:3650000, currency:"JMD",
+          status:"sold", mileage:54000, transmission:"Automatic", fuel:"Gasoline",
+          bodyType:"SUV", color:"White", location:"Kingston",
+          notes:"Sold recently. Similar units arriving soon.",
+          images:[
+            "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1400&q=70"
+          ],
+          createdAt: new Date(Date.now()-86400000*10).toISOString()
+        }
+      ]);
+    }
+  </script>
+</body>
+</html>
