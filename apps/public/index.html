@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Inventory</title>
+  <link rel="stylesheet" href="./assets/css/tokens.css" />
+  <link rel="stylesheet" href="./assets/css/app.css" />
+</head>
+<body>
+  <div id="app">
+    <div class="card">
+      <div class="topbar">
+        <div>
+          <div class="h2">Live Inventory</div>
+          <div class="muted" id="sub">Browse available vehicles.</div>
+        </div>
+        <div class="actions">
+          <input id="dealerId" class="input" placeholder="Optional dealerId (dlr_demo)" />
+          <button id="loadBtn" class="btn ghost">Load</button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input id="q" class="input" placeholder="Search make/model/title…" />
+        <button id="applyBtn" class="btn ghost">Apply</button>
+      </div>
+
+      <div id="grid" class="gridCards"></div>
+      <div id="empty" class="muted" style="padding:14px;display:none;">No vehicles found.</div>
+    </div>
+
+    <div id="modalBackdrop" class="backdrop hidden">
+      <div class="modal">
+        <div class="modalTop">
+          <div>
+            <div class="h3" id="mTitle">Vehicle</div>
+            <div class="muted" id="mMeta"></div>
+          </div>
+          <button id="mClose" class="iconBtn">×</button>
+        </div>
+
+        <img id="mImg" style="width:100%;border-radius:16px;max-height:380px;object-fit:cover" />
+        <div style="margin-top:10px" class="muted" id="mNotes"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./assets/js/app.js"></script>
+</body>
+</html>
